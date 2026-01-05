@@ -353,3 +353,42 @@ def XFESpaceToDepthOp:ONNX_Op<"XFESpaceToDepth",
   let hasVerifier = 1;
 }
 
+
+def XFEQLinearEltwiseOp:ONNX_Op<"XFEQLinearEltwise",
+  [Pure, OpVersionTrait<1>, DeclareOpInterfaceMethods<ShapeInferenceOpInterface>, DeclareOpInterfaceMethods<ShapeHelperOpInterface>]> {
+  let summary = "QLinearEltwise operation";
+  let description = [{
+  Unified quantized element-wise operation supporting Add, Mul, Sub, Div with optional fused activation. Attributes: op_type specifies the element-wise operation (ADD, MUL, SUB, DIV); nonlinear specifies fused activation (NONE, RELU, PRELU, LEAKYRELU); qscales contains [a_scale, b_scale, y_scale] quantization scales; qzeropoints contains [a_zp, b_zp, y_zp] quantization zero points; leakyrelu_alpha is the original LeakyReLU alpha; prelu_in is the fixed-point multiplier M for LeakyReLU (M/2^N); prelu_shift is the fixed-point shift N for LeakyReLU; prelu_slope is an optional PReLU slope tensor.
+  }];
+  let arguments = (ins AnyTypeOf<[TensorOf<[UI8]>, TensorOf<[UI16]>, TensorOf<[I8]>, TensorOf<[I16]>, TensorOf<[BF16]>]>:$A,
+    AnyTypeOf<[TensorOf<[UI8]>, TensorOf<[UI16]>, TensorOf<[I8]>, TensorOf<[I16]>, TensorOf<[BF16]>]>:$B,
+    AnyTypeOf<[TensorOf<[UI8]>, TensorOf<[UI16]>, TensorOf<[I8]>, TensorOf<[I16]>, TensorOf<[BF16]>]>:$prelu_slope,
+    OptionalAttr<F32Attr>:$leakyrelu_alpha,
+    DefaultValuedStrAttr<StrAttr, "NONE">:$nonlinear,
+    DefaultValuedStrAttr<StrAttr, "ADD">:$op_type,
+    OptionalAttr<SI64Attr>:$prelu_in,
+    OptionalAttr<SI64Attr>:$prelu_shift,
+    F32ArrayAttr:$qscales,
+    I64ArrayAttr:$qzeropoints);
+  let results = (outs AnyTypeOf<[TensorOf<[UI8]>, TensorOf<[UI16]>, TensorOf<[I8]>, TensorOf<[I16]>, TensorOf<[BF16]>]>:$Y);
+  let extraClassDeclaration = [{
+    static int getNumberOfOperands() {
+      return 3;
+    }
+    static int getNumberOfResults() {
+      return 1;
+    }
+    static std::vector<int> getTypeMap() {
+      return {30};
+    }
+  }];
+  let extraClassDefinition = [{
+    onnx_mlir::ONNXOpShapeHelper * $cppClass::getShapeHelper(mlir::Operation *op, llvm::ArrayRef<mlir::Value> oper, 
+        onnx_mlir::IndexExprBuilder *ieb, onnx_mlir::IndexExprScope *scope) {
+      // TODO: Implement specific shape helper for this custom op
+      // For now, returning nullptr - shape inference will use default behavior
+      return nullptr;
+    }
+  }];
+  let hasVerifier = 1;
+}

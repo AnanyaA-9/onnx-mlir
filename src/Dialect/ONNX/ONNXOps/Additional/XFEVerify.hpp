@@ -44,4 +44,7 @@ LogicalResult XFEDepthToSpaceOpVerify(Operation *op);
 // Verify for SpaceToDepthChannelLast
 LogicalResult XFESpaceToDepthOpVerify(Operation *op);
 
+// Verify for QLinearEltwise
+LogicalResult XFEQLinearEltwiseOpVerify(Operation *op);
+
 } // namespace mlir

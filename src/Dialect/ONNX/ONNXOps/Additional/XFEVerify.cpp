@@ -150,4 +150,19 @@ LogicalResult XFESpaceToDepthOpVerify(Operation *op) {
   return success();
 }
 
+LogicalResult XFEQLinearEltwiseOpVerify(Operation *op) {
+  // TODO: Implement verification for QLinearEltwise
+  // 
+  // Cast to specific op type:
+  // auto customOp = dyn_cast<XFEQLinearEltwiseOp>(op);
+  // if (!customOp) return failure();
+  // 
+  // Verify operand types, shapes, attributes, etc.
+  // Example: Check that input tensors have expected rank
+  // if (operandType.getRank() < 2)
+  //   return op->emitError("Expected input rank >= 2");
+  
+  return success();
+}
+
 } // namespace mlir

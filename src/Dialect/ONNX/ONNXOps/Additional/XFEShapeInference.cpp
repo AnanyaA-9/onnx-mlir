@@ -680,4 +680,22 @@ LogicalResult XFESpaceToDepthOpShapeInference(
   return success();
 }
 
+LogicalResult XFEQLinearEltwiseOpShapeInference(
+  Operation *op, std::function<void(Region &)> doShapeInference) {
+// TODO: Implement shape inference for QLinearEltwise
+// 
+// Cast to specific op type to access operation-specific methods:
+// auto customOp = dyn_cast<XFEQLinearEltwiseOp>(op);
+// if (!customOp) return failure();
+// 
+// Get operand types and shapes:
+// auto operandType = customOp.getOperand(0).getType().dyn_cast<ShapedType>();
+// 
+// Compute output shape based on operation semantics
+// Set result type:
+// customOp.getResult().setType(...);
+
+return success();
+}
+
 } // namespace mlir
