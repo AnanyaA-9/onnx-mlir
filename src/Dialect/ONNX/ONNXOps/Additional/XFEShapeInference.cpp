@@ -686,34 +686,44 @@ LogicalResult XFEQLinearEltwiseOpShapeInference(
   if (!eltwiseOp)
     return failure();
 
-  // Get inputs A and B (main operands for element-wise operation)
+  // Get input A (required) and B (optional)
   Value A = eltwiseOp.getA();
   Value B = eltwiseOp.getB();
 
-  // Cannot infer shape if inputs don't have shape and rank
-  if (!hasShapeAndRank(A) || !hasShapeAndRank(B))
+  // Cannot infer shape if A doesn't have shape and rank
+  if (!hasShapeAndRank(A))
     return success();
 
   auto aType = mlir::cast<ShapedType>(A.getType());
-  auto bType = mlir::cast<ShapedType>(B.getType());
   ArrayRef<int64_t> aShape = aType.getShape();
-  ArrayRef<int64_t> bShape = bType.getShape();
-
-  // Compute output shape using NumPy-style broadcasting
-  // Broadcasting rules:
-  // - Shapes are right-aligned (compare from trailing dimensions)
-  // - Dimensions are compatible if equal OR one of them is 1
-  // - Output shape is maximum along each dimension
-  // - Shorter shape is implicitly padded with 1s on the left
+  Type elementType = aType.getElementType();
 
   SmallVector<int64_t> outputShape;
-  if (!OpTrait::util::getBroadcastedShape(aShape, bShape, outputShape)) {
-    return op->emitError("QLinearEltwise: incompatible shapes for broadcasting")
-           << " A shape: [" << aShape << "], B shape: [" << bShape << "]";
+
+  // Check if B is provided (not None)
+  if (B && !mlir::isa<NoneType>(B.getType())) {
+    // B is provided - compute broadcasted shape
+    if (!hasShapeAndRank(B))
+      return success();
+
+    auto bType = mlir::cast<ShapedType>(B.getType());
+    ArrayRef<int64_t> bShape = bType.getShape();
+
+    // Compute output shape using NumPy-style broadcasting
+    // Broadcasting rules:
+    // - Shapes are right-aligned (compare from trailing dimensions)
+    // - Dimensions are compatible if equal OR one of them is 1
+    // - Output shape is maximum along each dimension
+    // - Shorter shape is implicitly padded with 1s on the left
+    if (!OpTrait::util::getBroadcastedShape(aShape, bShape, outputShape)) {
+      return op->emitError("QLinearEltwise: incompatible shapes for broadcasting")
+             << " A shape: [" << aShape << "], B shape: [" << bShape << "]";
+    }
+  } else {
+    // B is None - output shape is same as A (unary operation)
+    outputShape.assign(aShape.begin(), aShape.end());
   }
 
-  // Use element type from input A for output
-  Type elementType = aType.getElementType();
   auto resultType = RankedTensorType::get(outputShape, elementType);
   eltwiseOp.getResult().setType(resultType);
 

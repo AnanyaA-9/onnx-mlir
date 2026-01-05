@@ -443,9 +443,6 @@
   - name: B
     description: Second input tensor
     type_str: T
-  - name: prelu_slope
-    description: Optional PReLU slope tensor for per-channel slopes
-    type_str: T
     option: Optional
   outputs:
   - name: Y
@@ -460,7 +457,7 @@
     description: Quantization zero points [a_zp, b_zp, y_zp]
     type: list(int)
     required: true
-  - name: op_type
+  - name: type
     description: Element-wise operation type (ADD, MUL, SUB, DIV)
     type: string
     default_value: ADD
@@ -477,6 +474,9 @@
   - name: prelu_shift
     description: Fixed-point shift N for LeakyReLU
     type: int
+  - name: prelu_slope
+    description: Optional PReLU slope tensor for per-channel slopes
+    type: tensor
   type_constraints:
   - type_param: T
     description: Constrain input and output types to all numeric tensor types.
@@ -486,7 +486,7 @@
     - tensor(int8)
     - tensor(int16)
     - tensor(bfloat16)
-  min_input: 2
-  max_input: 3
+  min_input: 1
+  max_input: 2
   min_output: 1
   max_output: 1
