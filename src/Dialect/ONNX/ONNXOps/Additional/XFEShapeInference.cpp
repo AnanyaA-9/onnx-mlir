@@ -681,21 +681,43 @@ LogicalResult XFESpaceToDepthOpShapeInference(
 }
 
 LogicalResult XFEQLinearEltwiseOpShapeInference(
-  Operation *op, std::function<void(Region &)> doShapeInference) {
-// TODO: Implement shape inference for QLinearEltwise
-// 
-// Cast to specific op type to access operation-specific methods:
-// auto customOp = dyn_cast<XFEQLinearEltwiseOp>(op);
-// if (!customOp) return failure();
-// 
-// Get operand types and shapes:
-// auto operandType = customOp.getOperand(0).getType().dyn_cast<ShapedType>();
-// 
-// Compute output shape based on operation semantics
-// Set result type:
-// customOp.getResult().setType(...);
+    Operation *op, std::function<void(Region &)> doShapeInference) {
+  auto eltwiseOp = dyn_cast<XFEQLinearEltwiseOp>(op);
+  if (!eltwiseOp)
+    return failure();
 
-return success();
+  // Get inputs A and B (main operands for element-wise operation)
+  Value A = eltwiseOp.getA();
+  Value B = eltwiseOp.getB();
+
+  // Cannot infer shape if inputs don't have shape and rank
+  if (!hasShapeAndRank(A) || !hasShapeAndRank(B))
+    return success();
+
+  auto aType = mlir::cast<ShapedType>(A.getType());
+  auto bType = mlir::cast<ShapedType>(B.getType());
+  ArrayRef<int64_t> aShape = aType.getShape();
+  ArrayRef<int64_t> bShape = bType.getShape();
+
+  // Compute output shape using NumPy-style broadcasting
+  // Broadcasting rules:
+  // - Shapes are right-aligned (compare from trailing dimensions)
+  // - Dimensions are compatible if equal OR one of them is 1
+  // - Output shape is maximum along each dimension
+  // - Shorter shape is implicitly padded with 1s on the left
+
+  SmallVector<int64_t> outputShape;
+  if (!OpTrait::util::getBroadcastedShape(aShape, bShape, outputShape)) {
+    return op->emitError("QLinearEltwise: incompatible shapes for broadcasting")
+           << " A shape: [" << aShape << "], B shape: [" << bShape << "]";
+  }
+
+  // Use element type from input A for output
+  Type elementType = aType.getElementType();
+  auto resultType = RankedTensorType::get(outputShape, elementType);
+  eltwiseOp.getResult().setType(resultType);
+
+  return success();
 }
 
 } // namespace mlir
