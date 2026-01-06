@@ -442,8 +442,7 @@
     type_str: T
   - name: B
     description: Second input tensor
-    type_str: T
-    option: Optional
+    type_str: T_or_None
   outputs:
   - name: Y
     description: Output tensor
@@ -486,7 +485,16 @@
     - tensor(int8)
     - tensor(int16)
     - tensor(bfloat16)
-  min_input: 1
+  - type_param: T_or_None
+    description: Constrain to all types in T plus NoneType.
+    allowed_types:
+    - tensor(uint8)
+    - tensor(uint16)
+    - tensor(int8)
+    - tensor(int16)
+    - tensor(bfloat16)
+    - NoneType
+  min_input: 2
   max_input: 2
   min_output: 1
   max_output: 1
