@@ -75,9 +75,9 @@ LogicalResult XFESpaceToDepthOp::inferShapes(
       this->getOperation(), doShapeInference);
 }
 
-LogicalResult XFEQLinearEltwiseOp::inferShapes(
+LogicalResult XFEFusedEltwiseOp::inferShapes(
     std::function<void(Region &)> doShapeInference) {
-  return XFEQLinearEltwiseOpShapeInference(
+  return XFEFusedEltwiseOpShapeInference(
       this->getOperation(), doShapeInference);
 }
 
@@ -125,6 +125,6 @@ LogicalResult XFESpaceToDepthOp::verify() {
   return XFESpaceToDepthOpVerify(this->getOperation());
 }
 
-LogicalResult XFEQLinearEltwiseOp::verify() {
-  return XFEQLinearEltwiseOpVerify(this->getOperation());
+LogicalResult XFEFusedEltwiseOp::verify() {
+  return XFEFusedEltwiseOpVerify(this->getOperation());
 }

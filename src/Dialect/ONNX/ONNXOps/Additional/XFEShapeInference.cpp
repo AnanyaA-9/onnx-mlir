@@ -680,9 +680,9 @@ LogicalResult XFESpaceToDepthOpShapeInference(
   return success();
 }
 
-LogicalResult XFEQLinearEltwiseOpShapeInference(
+LogicalResult XFEFusedEltwiseOpShapeInference(
     Operation *op, std::function<void(Region &)> doShapeInference) {
-  auto eltwiseOp = dyn_cast<XFEQLinearEltwiseOp>(op);
+  auto eltwiseOp = dyn_cast<XFEFusedEltwiseOp>(op);
   if (!eltwiseOp)
     return failure();
 
@@ -716,7 +716,7 @@ LogicalResult XFEQLinearEltwiseOpShapeInference(
     // - Output shape is maximum along each dimension
     // - Shorter shape is implicitly padded with 1s on the left
     if (!OpTrait::util::getBroadcastedShape(aShape, bShape, outputShape)) {
-      return op->emitError("QLinearEltwise: incompatible shapes for broadcasting")
+      return op->emitError("FusedEltwise: incompatible shapes for broadcasting")
              << " A shape: [" << aShape << "], B shape: [" << bShape << "]";
     }
   } else {

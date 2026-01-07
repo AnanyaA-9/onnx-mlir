@@ -424,14 +424,13 @@
   max_output: 1
 
 # ==============================================================================
-# QLinearEltwise: Quantized element-wise operation with optional activation fusion
-# Supports Add, Mul, Sub, Div with optional RELU, PRELU, LEAKYRELU activation
+# FusedEltwise:  Element-wise operation with optional activation fusion
 # ==============================================================================
-- name: QLinearEltwise
+- name: FusedEltwise
   domain: com.amd.xfe
   since_version: 1
   support_level: COMMON
-  description: 'Unified quantized element-wise operation supporting Add, Mul, Sub, Div with optional fused activation. Attributes: op_type specifies the element-wise operation (ADD, MUL, SUB, DIV); nonlinear specifies fused activation (NONE, RELU, PRELU, LEAKYRELU); qscales contains [a_scale, b_scale, y_scale] quantization scales; qzeropoints contains [a_zp, b_zp, y_zp] quantization zero points; leakyrelu_alpha is the original LeakyReLU alpha; prelu_in is the fixed-point multiplier M for LeakyReLU (M/2^N); prelu_shift is the fixed-point shift N for LeakyReLU; prelu_slope is an optional PReLU slope tensor.'
+  description: 'Quantized element-wise operation supporting arithmetic, trigonometric, activation, and comparision elementwise functions. Few eltwise ops support fusion with an optional activation.  Attributes: op_type specifies the element-wise operation (ADD, MUL, SUB, DIV, TANH, SQRT, etc); nonlinear specifies optional activation (NONE, RELU, PRELU, LEAKYRELU); qscales contains [a_scale, b_scale, y_scale] quantization scales; qzeropoints contains [a_zp, b_zp, y_zp] quantization zero points; leakyrelu_alpha is the original LeakyReLU alpha; prelu_in is the fixed-point multiplier M for LeakyReLU (M/2^N); prelu_shift is the fixed-point shift N for LeakyReLU; prelu_slope is an optional PReLU slope tensor.'
   meta_attributes:
   - onnx_opset: 1
   - verify: True
@@ -457,9 +456,9 @@
     type: list(int)
     required: true
   - name: type
-    description: Element-wise operation type (ADD, MUL, SUB, DIV)
+    description: Element-wise operation type (ADD, MUL, SUB, DIV, etc.)
     type: string
-    default_value: ADD
+    required: true
   - name: nonlinear
     description: Fused activation type (NONE, RELU, PRELU, LEAKYRELU)
     type: string
@@ -484,7 +483,7 @@
     - tensor(uint16)
     - tensor(int8)
     - tensor(int16)
-    - tensor(bfloat16)
+    - tensor(quant_QuantizedType)
   - type_param: T_or_None
     description: Constrain to all types in T plus NoneType.
     allowed_types:
@@ -492,7 +491,7 @@
     - tensor(uint16)
     - tensor(int8)
     - tensor(int16)
-    - tensor(bfloat16)
+    - tensor(quant_QuantizedType)
     - NoneType
   min_input: 2
   max_input: 2

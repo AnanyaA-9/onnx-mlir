@@ -405,12 +405,12 @@ func.func @test_xfe_depth_space_roundtrip(%arg0: tensor<1x4x4x16xf32>) -> tensor
 // -----
 
 //===----------------------------------------------------------------------===//
-/// XFE QLinearEltwise Tests (Quantized Element-wise Operations)
+/// XFE FusedEltwise Tests (Quantized Element-wise Operations)
 //===----------------------------------------------------------------------===//
 
 // COM: Test basic element-wise add with same shapes (no broadcast needed)
-func.func @test_xfe_qlinear_eltwise_same_shape(%arg0: tensor<1x64x28x28xi8>, %arg1: tensor<1x64x28x28xi8>) -> tensor<*xi8> {
-  %0 = "onnx.XFEQLinearEltwise"(%arg0, %arg1) {
+func.func @test_xfe_fused_eltwise_same_shape(%arg0: tensor<1x64x28x28xi8>, %arg1: tensor<1x64x28x28xi8>) -> tensor<*xi8> {
+  %0 = "onnx.XFEFusedEltwise"(%arg0, %arg1) {
     qscales = [0.1 : f32, 0.1 : f32, 0.1 : f32],
     qzeropoints = [0 : i64, 0 : i64, 0 : i64],
     type = "ADD",
@@ -418,16 +418,16 @@ func.func @test_xfe_qlinear_eltwise_same_shape(%arg0: tensor<1x64x28x28xi8>, %ar
   } : (tensor<1x64x28x28xi8>, tensor<1x64x28x28xi8>) -> tensor<*xi8>
   onnx.Return %0 : tensor<*xi8>
 
-  // CHECK-LABEL: test_xfe_qlinear_eltwise_same_shape
-  // CHECK: [[RES:%.+]] = "onnx.XFEQLinearEltwise"(%arg0, %arg1) {{.*}} -> tensor<1x64x28x28xi8>
+  // CHECK-LABEL: test_xfe_fused_eltwise_same_shape
+  // CHECK: [[RES:%.+]] = "onnx.XFEFusedEltwise"(%arg0, %arg1) {{.*}} -> tensor<1x64x28x28xi8>
   // CHECK: onnx.Return [[RES]] : tensor<1x64x28x28xi8>
 }
 
 // -----
 
 // COM: Test broadcasting with scalar-like tensor [1] x [N,C,H,W]
-func.func @test_xfe_qlinear_eltwise_broadcast_scalar(%arg0: tensor<1xi8>, %arg1: tensor<1x64x28x28xi8>) -> tensor<*xi8> {
-  %0 = "onnx.XFEQLinearEltwise"(%arg0, %arg1) {
+func.func @test_xfe_fused_eltwise_broadcast_scalar(%arg0: tensor<1xi8>, %arg1: tensor<1x64x28x28xi8>) -> tensor<*xi8> {
+  %0 = "onnx.XFEFusedEltwise"(%arg0, %arg1) {
     qscales = [0.1 : f32, 0.1 : f32, 0.1 : f32],
     qzeropoints = [0 : i64, 0 : i64, 0 : i64],
     type = "MUL",
@@ -435,16 +435,16 @@ func.func @test_xfe_qlinear_eltwise_broadcast_scalar(%arg0: tensor<1xi8>, %arg1:
   } : (tensor<1xi8>, tensor<1x64x28x28xi8>) -> tensor<*xi8>
   onnx.Return %0 : tensor<*xi8>
 
-  // CHECK-LABEL: test_xfe_qlinear_eltwise_broadcast_scalar
-  // CHECK: [[RES:%.+]] = "onnx.XFEQLinearEltwise"(%arg0, %arg1) {{.*}} -> tensor<1x64x28x28xi8>
+  // CHECK-LABEL: test_xfe_fused_eltwise_broadcast_scalar
+  // CHECK: [[RES:%.+]] = "onnx.XFEFusedEltwise"(%arg0, %arg1) {{.*}} -> tensor<1x64x28x28xi8>
   // CHECK: onnx.Return [[RES]] : tensor<1x64x28x28xi8>
 }
 
 // -----
 
 // COM: Test broadcasting with channel dimension [1,C,1,1] x [N,C,H,W]
-func.func @test_xfe_qlinear_eltwise_broadcast_channel(%arg0: tensor<1x64x1x1xi8>, %arg1: tensor<1x64x28x28xi8>) -> tensor<*xi8> {
-  %0 = "onnx.XFEQLinearEltwise"(%arg0, %arg1) {
+func.func @test_xfe_fused_eltwise_broadcast_channel(%arg0: tensor<1x64x1x1xi8>, %arg1: tensor<1x64x28x28xi8>) -> tensor<*xi8> {
+  %0 = "onnx.XFEFusedEltwise"(%arg0, %arg1) {
     qscales = [0.1 : f32, 0.1 : f32, 0.1 : f32],
     qzeropoints = [0 : i64, 0 : i64, 0 : i64],
     type = "ADD",
@@ -452,16 +452,16 @@ func.func @test_xfe_qlinear_eltwise_broadcast_channel(%arg0: tensor<1x64x1x1xi8>
   } : (tensor<1x64x1x1xi8>, tensor<1x64x28x28xi8>) -> tensor<*xi8>
   onnx.Return %0 : tensor<*xi8>
 
-  // CHECK-LABEL: test_xfe_qlinear_eltwise_broadcast_channel
-  // CHECK: [[RES:%.+]] = "onnx.XFEQLinearEltwise"(%arg0, %arg1) {{.*}} -> tensor<1x64x28x28xi8>
+  // CHECK-LABEL: test_xfe_fused_eltwise_broadcast_channel
+  // CHECK: [[RES:%.+]] = "onnx.XFEFusedEltwise"(%arg0, %arg1) {{.*}} -> tensor<1x64x28x28xi8>
   // CHECK: onnx.Return [[RES]] : tensor<1x64x28x28xi8>
 }
 
 // -----
 
 // COM: Test broadcasting with different ranks [1,C,1,1] x [N,C,H,W] -> channel-wise broadcast
-func.func @test_xfe_qlinear_eltwise_broadcast_rank_diff(%arg0: tensor<1x64x1x1xi8>, %arg1: tensor<1x64x28x28xi8>) -> tensor<*xi8> {
-  %0 = "onnx.XFEQLinearEltwise"(%arg0, %arg1) {
+func.func @test_xfe_fused_eltwise_broadcast_rank_diff(%arg0: tensor<1x64x1x1xi8>, %arg1: tensor<1x64x28x28xi8>) -> tensor<*xi8> {
+  %0 = "onnx.XFEFusedEltwise"(%arg0, %arg1) {
     qscales = [0.1 : f32, 0.1 : f32, 0.1 : f32],
     qzeropoints = [0 : i64, 0 : i64, 0 : i64],
     type = "SUB",
@@ -469,16 +469,16 @@ func.func @test_xfe_qlinear_eltwise_broadcast_rank_diff(%arg0: tensor<1x64x1x1xi
   } : (tensor<1x64x1x1xi8>, tensor<1x64x28x28xi8>) -> tensor<*xi8>
   onnx.Return %0 : tensor<*xi8>
 
-  // CHECK-LABEL: test_xfe_qlinear_eltwise_broadcast_rank_diff
-  // CHECK: [[RES:%.+]] = "onnx.XFEQLinearEltwise"(%arg0, %arg1) {{.*}} -> tensor<1x64x28x28xi8>
+  // CHECK-LABEL: test_xfe_fused_eltwise_broadcast_rank_diff
+  // CHECK: [[RES:%.+]] = "onnx.XFEFusedEltwise"(%arg0, %arg1) {{.*}} -> tensor<1x64x28x28xi8>
   // CHECK: onnx.Return [[RES]] : tensor<1x64x28x28xi8>
 }
 
 // -----
 
 // COM: Test broadcasting [1,4,1] x [3,1,5] -> [3,4,5]
-func.func @test_xfe_qlinear_eltwise_broadcast_numpy(%arg0: tensor<1x4x1xi8>, %arg1: tensor<3x1x5xi8>) -> tensor<*xi8> {
-  %0 = "onnx.XFEQLinearEltwise"(%arg0, %arg1) {
+func.func @test_xfe_fused_eltwise_broadcast_numpy(%arg0: tensor<1x4x1xi8>, %arg1: tensor<3x1x5xi8>) -> tensor<*xi8> {
+  %0 = "onnx.XFEFusedEltwise"(%arg0, %arg1) {
     qscales = [0.1 : f32, 0.1 : f32, 0.1 : f32],
     qzeropoints = [0 : i64, 0 : i64, 0 : i64],
     type = "DIV",
@@ -486,16 +486,16 @@ func.func @test_xfe_qlinear_eltwise_broadcast_numpy(%arg0: tensor<1x4x1xi8>, %ar
   } : (tensor<1x4x1xi8>, tensor<3x1x5xi8>) -> tensor<*xi8>
   onnx.Return %0 : tensor<*xi8>
 
-  // CHECK-LABEL: test_xfe_qlinear_eltwise_broadcast_numpy
-  // CHECK: [[RES:%.+]] = "onnx.XFEQLinearEltwise"(%arg0, %arg1) {{.*}} -> tensor<3x4x5xi8>
+  // CHECK-LABEL: test_xfe_fused_eltwise_broadcast_numpy
+  // CHECK: [[RES:%.+]] = "onnx.XFEFusedEltwise"(%arg0, %arg1) {{.*}} -> tensor<3x4x5xi8>
   // CHECK: onnx.Return [[RES]] : tensor<3x4x5xi8>
 }
 
 // -----
 
 // COM: Test with prelu_slope attribute (for PReLU activation)
-func.func @test_xfe_qlinear_eltwise_with_prelu(%arg0: tensor<1x64x28x28xi8>, %arg1: tensor<1x64x28x28xi8>) -> tensor<*xi8> {
-  %0 = "onnx.XFEQLinearEltwise"(%arg0, %arg1) {
+func.func @test_xfe_fused_eltwise_with_prelu(%arg0: tensor<1x64x28x28xi8>, %arg1: tensor<1x64x28x28xi8>) -> tensor<*xi8> {
+  %0 = "onnx.XFEFusedEltwise"(%arg0, %arg1) {
     qscales = [0.1 : f32, 0.1 : f32, 0.1 : f32],
     qzeropoints = [0 : i64, 0 : i64, 0 : i64],
     type = "ADD",
@@ -503,16 +503,16 @@ func.func @test_xfe_qlinear_eltwise_with_prelu(%arg0: tensor<1x64x28x28xi8>, %ar
   } : (tensor<1x64x28x28xi8>, tensor<1x64x28x28xi8>) -> tensor<*xi8>
   onnx.Return %0 : tensor<*xi8>
 
-  // CHECK-LABEL: test_xfe_qlinear_eltwise_with_prelu
-  // CHECK: [[RES:%.+]] = "onnx.XFEQLinearEltwise"(%arg0, %arg1) {{.*}} -> tensor<1x64x28x28xi8>
+  // CHECK-LABEL: test_xfe_fused_eltwise_with_prelu
+  // CHECK: [[RES:%.+]] = "onnx.XFEFusedEltwise"(%arg0, %arg1) {{.*}} -> tensor<1x64x28x28xi8>
   // CHECK: onnx.Return [[RES]] : tensor<1x64x28x28xi8>
 }
 
 // -----
 
 // COM: Test with LeakyReLU activation
-func.func @test_xfe_qlinear_eltwise_leaky_relu(%arg0: tensor<1x64x28x28xi8>, %arg1: tensor<1x64x28x28xi8>) -> tensor<*xi8> {
-  %0 = "onnx.XFEQLinearEltwise"(%arg0, %arg1) {
+func.func @test_xfe_fused_eltwise_leaky_relu(%arg0: tensor<1x64x28x28xi8>, %arg1: tensor<1x64x28x28xi8>) -> tensor<*xi8> {
+  %0 = "onnx.XFEFusedEltwise"(%arg0, %arg1) {
     qscales = [0.1 : f32, 0.1 : f32, 0.1 : f32],
     qzeropoints = [0 : i64, 0 : i64, 0 : i64],
     type = "ADD",
@@ -523,16 +523,16 @@ func.func @test_xfe_qlinear_eltwise_leaky_relu(%arg0: tensor<1x64x28x28xi8>, %ar
   } : (tensor<1x64x28x28xi8>, tensor<1x64x28x28xi8>) -> tensor<*xi8>
   onnx.Return %0 : tensor<*xi8>
 
-  // CHECK-LABEL: test_xfe_qlinear_eltwise_leaky_relu
-  // CHECK: [[RES:%.+]] = "onnx.XFEQLinearEltwise"(%arg0, %arg1) {{.*}} -> tensor<1x64x28x28xi8>
+  // CHECK-LABEL: test_xfe_fused_eltwise_leaky_relu
+  // CHECK: [[RES:%.+]] = "onnx.XFEFusedEltwise"(%arg0, %arg1) {{.*}} -> tensor<1x64x28x28xi8>
   // CHECK: onnx.Return [[RES]] : tensor<1x64x28x28xi8>
 }
 
 // -----
 
 // COM: Test with dynamic dimensions - broadcasting resolves known dims
-func.func @test_xfe_qlinear_eltwise_dynamic(%arg0: tensor<?x64x?x?xi8>, %arg1: tensor<1x64x28x28xi8>) -> tensor<*xi8> {
-  %0 = "onnx.XFEQLinearEltwise"(%arg0, %arg1) {
+func.func @test_xfe_fused_eltwise_dynamic(%arg0: tensor<?x64x?x?xi8>, %arg1: tensor<1x64x28x28xi8>) -> tensor<*xi8> {
+  %0 = "onnx.XFEFusedEltwise"(%arg0, %arg1) {
     qscales = [0.1 : f32, 0.1 : f32, 0.1 : f32],
     qzeropoints = [0 : i64, 0 : i64, 0 : i64],
     type = "ADD",
@@ -540,17 +540,17 @@ func.func @test_xfe_qlinear_eltwise_dynamic(%arg0: tensor<?x64x?x?xi8>, %arg1: t
   } : (tensor<?x64x?x?xi8>, tensor<1x64x28x28xi8>) -> tensor<*xi8>
   onnx.Return %0 : tensor<*xi8>
 
-  // CHECK-LABEL: test_xfe_qlinear_eltwise_dynamic
-  // CHECK: [[RES:%.+]] = "onnx.XFEQLinearEltwise"(%arg0, %arg1) {{.*}} -> tensor<?x64x28x28xi8>
+  // CHECK-LABEL: test_xfe_fused_eltwise_dynamic
+  // CHECK: [[RES:%.+]] = "onnx.XFEFusedEltwise"(%arg0, %arg1) {{.*}} -> tensor<?x64x28x28xi8>
   // CHECK: onnx.Return [[RES]] : tensor<?x64x28x28xi8>
 }
 
 // -----
 
 // COM: Test with single input (B is optional, using none)
-func.func @test_xfe_qlinear_eltwise_single_input(%arg0: tensor<1x64x28x28xi8>) -> tensor<*xi8> {
+func.func @test_xfe_fused_eltwise_single_input(%arg0: tensor<1x64x28x28xi8>) -> tensor<*xi8> {
   %none = "onnx.NoValue"() {value} : () -> none
-  %0 = "onnx.XFEQLinearEltwise"(%arg0, %none) {
+  %0 = "onnx.XFEFusedEltwise"(%arg0, %none) {
     qscales = [0.1 : f32, 0.1 : f32, 0.1 : f32],
     qzeropoints = [0 : i64, 0 : i64, 0 : i64],
     type = "ADD",
@@ -558,8 +558,7 @@ func.func @test_xfe_qlinear_eltwise_single_input(%arg0: tensor<1x64x28x28xi8>) -
   } : (tensor<1x64x28x28xi8>, none) -> tensor<*xi8>
   onnx.Return %0 : tensor<*xi8>
 
-  // CHECK-LABEL: test_xfe_qlinear_eltwise_single_input
-  // CHECK: [[RES:%.+]] = "onnx.XFEQLinearEltwise"(%arg0, %0) {{.*}} -> tensor<1x64x28x28xi8>
+  // CHECK-LABEL: test_xfe_fused_eltwise_single_input
+  // CHECK: [[RES:%.+]] = "onnx.XFEFusedEltwise"(%arg0, %0) {{.*}} -> tensor<1x64x28x28xi8>
   // CHECK: onnx.Return [[RES]] : tensor<1x64x28x28xi8>
 }
-

@@ -150,11 +150,11 @@ LogicalResult XFESpaceToDepthOpVerify(Operation *op) {
   return success();
 }
 
-LogicalResult XFEQLinearEltwiseOpVerify(Operation *op) {
-  // TODO: Implement verification for QLinearEltwise
+LogicalResult XFEFusedEltwiseOpVerify(Operation *op) {
+  // TODO: Implement verification for FusedEltwise
   // 
   // Cast to specific op type:
-  // auto customOp = dyn_cast<XFEQLinearEltwiseOp>(op);
+  // auto customOp = dyn_cast<XFEFusedEltwiseOp>(op);
   // if (!customOp) return failure();
   // 
   // Verify operand types, shapes, attributes, etc.
