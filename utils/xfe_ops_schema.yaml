@@ -447,14 +447,6 @@
     description: Output tensor
     type_str: T
   attributes:
-  - name: qscales
-    description: Quantization scales [a_scale, b_scale, y_scale]
-    type: list(float)
-    required: true
-  - name: qzeropoints
-    description: Quantization zero points [a_zp, b_zp, y_zp]
-    type: list(int)
-    required: true
   - name: type
     description: Element-wise operation type (ADD, MUL, SUB, DIV, etc.)
     type: string

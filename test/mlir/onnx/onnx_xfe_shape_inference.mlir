@@ -411,8 +411,6 @@ func.func @test_xfe_depth_space_roundtrip(%arg0: tensor<1x4x4x16xf32>) -> tensor
 // COM: Test basic element-wise add with same shapes (no broadcast needed)
 func.func @test_xfe_fused_eltwise_same_shape(%arg0: tensor<1x64x28x28xi8>, %arg1: tensor<1x64x28x28xi8>) -> tensor<*xi8> {
   %0 = "onnx.XFEFusedEltwise"(%arg0, %arg1) {
-    qscales = [0.1 : f32, 0.1 : f32, 0.1 : f32],
-    qzeropoints = [0 : i64, 0 : i64, 0 : i64],
     type = "ADD",
     nonlinear = "NONE"
   } : (tensor<1x64x28x28xi8>, tensor<1x64x28x28xi8>) -> tensor<*xi8>
@@ -428,8 +426,6 @@ func.func @test_xfe_fused_eltwise_same_shape(%arg0: tensor<1x64x28x28xi8>, %arg1
 // COM: Test broadcasting with scalar-like tensor [1] x [N,C,H,W]
 func.func @test_xfe_fused_eltwise_broadcast_scalar(%arg0: tensor<1xi8>, %arg1: tensor<1x64x28x28xi8>) -> tensor<*xi8> {
   %0 = "onnx.XFEFusedEltwise"(%arg0, %arg1) {
-    qscales = [0.1 : f32, 0.1 : f32, 0.1 : f32],
-    qzeropoints = [0 : i64, 0 : i64, 0 : i64],
     type = "MUL",
     nonlinear = "NONE"
   } : (tensor<1xi8>, tensor<1x64x28x28xi8>) -> tensor<*xi8>
@@ -445,8 +441,6 @@ func.func @test_xfe_fused_eltwise_broadcast_scalar(%arg0: tensor<1xi8>, %arg1: t
 // COM: Test broadcasting with channel dimension [1,C,1,1] x [N,C,H,W]
 func.func @test_xfe_fused_eltwise_broadcast_channel(%arg0: tensor<1x64x1x1xi8>, %arg1: tensor<1x64x28x28xi8>) -> tensor<*xi8> {
   %0 = "onnx.XFEFusedEltwise"(%arg0, %arg1) {
-    qscales = [0.1 : f32, 0.1 : f32, 0.1 : f32],
-    qzeropoints = [0 : i64, 0 : i64, 0 : i64],
     type = "ADD",
     nonlinear = "RELU"
   } : (tensor<1x64x1x1xi8>, tensor<1x64x28x28xi8>) -> tensor<*xi8>
@@ -462,8 +456,6 @@ func.func @test_xfe_fused_eltwise_broadcast_channel(%arg0: tensor<1x64x1x1xi8>, 
 // COM: Test broadcasting with different ranks [1,C,1,1] x [N,C,H,W] -> channel-wise broadcast
 func.func @test_xfe_fused_eltwise_broadcast_rank_diff(%arg0: tensor<1x64x1x1xi8>, %arg1: tensor<1x64x28x28xi8>) -> tensor<*xi8> {
   %0 = "onnx.XFEFusedEltwise"(%arg0, %arg1) {
-    qscales = [0.1 : f32, 0.1 : f32, 0.1 : f32],
-    qzeropoints = [0 : i64, 0 : i64, 0 : i64],
     type = "SUB",
     nonlinear = "NONE"
   } : (tensor<1x64x1x1xi8>, tensor<1x64x28x28xi8>) -> tensor<*xi8>
@@ -479,8 +471,6 @@ func.func @test_xfe_fused_eltwise_broadcast_rank_diff(%arg0: tensor<1x64x1x1xi8>
 // COM: Test broadcasting [1,4,1] x [3,1,5] -> [3,4,5]
 func.func @test_xfe_fused_eltwise_broadcast_numpy(%arg0: tensor<1x4x1xi8>, %arg1: tensor<3x1x5xi8>) -> tensor<*xi8> {
   %0 = "onnx.XFEFusedEltwise"(%arg0, %arg1) {
-    qscales = [0.1 : f32, 0.1 : f32, 0.1 : f32],
-    qzeropoints = [0 : i64, 0 : i64, 0 : i64],
     type = "DIV",
     nonlinear = "NONE"
   } : (tensor<1x4x1xi8>, tensor<3x1x5xi8>) -> tensor<*xi8>
@@ -496,8 +486,6 @@ func.func @test_xfe_fused_eltwise_broadcast_numpy(%arg0: tensor<1x4x1xi8>, %arg1
 // COM: Test with prelu_slope attribute (for PReLU activation)
 func.func @test_xfe_fused_eltwise_with_prelu(%arg0: tensor<1x64x28x28xi8>, %arg1: tensor<1x64x28x28xi8>) -> tensor<*xi8> {
   %0 = "onnx.XFEFusedEltwise"(%arg0, %arg1) {
-    qscales = [0.1 : f32, 0.1 : f32, 0.1 : f32],
-    qzeropoints = [0 : i64, 0 : i64, 0 : i64],
     type = "ADD",
     nonlinear = "PRELU"
   } : (tensor<1x64x28x28xi8>, tensor<1x64x28x28xi8>) -> tensor<*xi8>
@@ -513,8 +501,6 @@ func.func @test_xfe_fused_eltwise_with_prelu(%arg0: tensor<1x64x28x28xi8>, %arg1
 // COM: Test with LeakyReLU activation
 func.func @test_xfe_fused_eltwise_leaky_relu(%arg0: tensor<1x64x28x28xi8>, %arg1: tensor<1x64x28x28xi8>) -> tensor<*xi8> {
   %0 = "onnx.XFEFusedEltwise"(%arg0, %arg1) {
-    qscales = [0.1 : f32, 0.1 : f32, 0.1 : f32],
-    qzeropoints = [0 : i64, 0 : i64, 0 : i64],
     type = "ADD",
     nonlinear = "LEAKYRELU",
     leakyrelu_alpha = 0.01 : f32,
@@ -533,8 +519,6 @@ func.func @test_xfe_fused_eltwise_leaky_relu(%arg0: tensor<1x64x28x28xi8>, %arg1
 // COM: Test with dynamic dimensions - broadcasting resolves known dims
 func.func @test_xfe_fused_eltwise_dynamic(%arg0: tensor<?x64x?x?xi8>, %arg1: tensor<1x64x28x28xi8>) -> tensor<*xi8> {
   %0 = "onnx.XFEFusedEltwise"(%arg0, %arg1) {
-    qscales = [0.1 : f32, 0.1 : f32, 0.1 : f32],
-    qzeropoints = [0 : i64, 0 : i64, 0 : i64],
     type = "ADD",
     nonlinear = "NONE"
   } : (tensor<?x64x?x?xi8>, tensor<1x64x28x28xi8>) -> tensor<*xi8>
@@ -551,8 +535,6 @@ func.func @test_xfe_fused_eltwise_dynamic(%arg0: tensor<?x64x?x?xi8>, %arg1: ten
 func.func @test_xfe_fused_eltwise_single_input(%arg0: tensor<1x64x28x28xi8>) -> tensor<*xi8> {
   %none = "onnx.NoValue"() {value} : () -> none
   %0 = "onnx.XFEFusedEltwise"(%arg0, %none) {
-    qscales = [0.1 : f32, 0.1 : f32, 0.1 : f32],
-    qzeropoints = [0 : i64, 0 : i64, 0 : i64],
     type = "ADD",
     nonlinear = "RELU"
   } : (tensor<1x64x28x28xi8>, none) -> tensor<*xi8>
