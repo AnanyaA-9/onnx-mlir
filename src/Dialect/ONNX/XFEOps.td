@@ -352,3 +352,4 @@ def XFESpaceToDepthOp:ONNX_Op<"XFESpaceToDepth",
   }];
   let hasVerifier = 1;
 }
+
