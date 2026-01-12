@@ -150,5 +150,4 @@ LogicalResult XFESpaceToDepthOpVerify(Operation *op) {
   return success();
 }
 
-
 } // namespace mlir

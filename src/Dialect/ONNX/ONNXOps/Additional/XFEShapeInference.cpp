@@ -680,5 +680,4 @@ LogicalResult XFESpaceToDepthOpShapeInference(
   return success();
 }
 
-
 } // namespace mlir
