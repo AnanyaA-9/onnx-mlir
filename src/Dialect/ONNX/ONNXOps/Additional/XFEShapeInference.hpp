@@ -54,8 +54,4 @@ LogicalResult XFEDepthToSpaceOpShapeInference(
 LogicalResult XFESpaceToDepthOpShapeInference(
     Operation *op, std::function<void(Region &)> doShapeInference);
 
-// Shape inference for FusedEltwise
-LogicalResult XFEFusedEltwiseOpShapeInference(
-    Operation *op, std::function<void(Region &)> doShapeInference);
-
 } // namespace mlir

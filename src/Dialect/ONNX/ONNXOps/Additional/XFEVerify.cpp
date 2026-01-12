@@ -150,19 +150,5 @@ LogicalResult XFESpaceToDepthOpVerify(Operation *op) {
   return success();
 }
 
-LogicalResult XFEFusedEltwiseOpVerify(Operation *op) {
-  // TODO: Implement verification for FusedEltwise
-  // 
-  // Cast to specific op type:
-  // auto customOp = dyn_cast<XFEFusedEltwiseOp>(op);
-  // if (!customOp) return failure();
-  // 
-  // Verify operand types, shapes, attributes, etc.
-  // Example: Check that input tensors have expected rank
-  // if (operandType.getRank() < 2)
-  //   return op->emitError("Expected input rank >= 2");
-  
-  return success();
-}
 
 } // namespace mlir
